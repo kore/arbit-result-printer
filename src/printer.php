@@ -49,11 +49,14 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
             $result->noneSkipped())
         {
             $this->write(
-              sprintf(
-                "\n\033[1;32mOk\033[0m (%d test%s)\n",
+              "\n\033[1;37;42m" .
+              ( $result = sprintf(
+                "Ok (%d test%s)",
                 count($result),
                 (count($result) == 1) ? '' : 's'
-              )
+              ) ) .
+              str_repeat( ' ', 80 - strlen( $result ) ) .
+              "\033[0m\n"
             );
         }
         elseif ((!$result->allCompletlyImplemented() ||
@@ -61,8 +64,8 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
                  $result->wasSuccessful())
         {
             $this->write(
+              "\n\033[1;37;43mOk, but incomplete or skipped tests!                                            \033[0m\n" . 
               sprintf(
-                "\n\033[1;32mOk\033[0m, but incomplete or skipped tests!\n" .
                 "Tests: %d%s%s.\n",
                 count($result),
                 $this->getCountString($result->notImplementedCount(), 'Incomplete'),
@@ -74,7 +77,7 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
         {
             $this->write(
               sprintf(
-                "\n\033[1;31mFailures\033[0m\n" .
+                "\n\033[1;37;41mFailures                                                                        \033[m\n" .
                 "Tests: %d%s%s%s%s.\n",
                 count($result),
                 $this->getCountString($result->failureCount(), 'Failures'),
