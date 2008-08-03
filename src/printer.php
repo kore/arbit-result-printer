@@ -210,7 +210,7 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
         if ( $this->lastEvent === self::EVENT_TEST_END )
         {
             echo ( ( $this->column < 72 ) ? str_repeat( ' ', 73 - $this->column ) : ' ' );
-            printf( "\033[0;37m[%3d%%]\033[0m", $this->testsRun / $this->testSuiteSize[0] * 100 );
+            printf( "[%3d%%]", $this->testsRun / $this->testSuiteSize[0] * 100 );
         }
 
         array_pop($this->numberOfTests);
