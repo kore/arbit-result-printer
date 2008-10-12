@@ -41,7 +41,7 @@ class arbitTextUiCommand extends PHPUnit_TextUI_Command
      *
      * @return void
      */
-    public static function main()
+    public static function main($exit = true)
     {
         $arguments = self::handleArguments();
         $runner    = new PHPUnit_TextUI_TestRunner;
@@ -62,7 +62,13 @@ class arbitTextUiCommand extends PHPUnit_TextUI_Command
 
         if ($suite->testAt(0) instanceof PHPUnit_Framework_Warning &&
             strpos($suite->testAt(0)->getMessage(), 'No tests found in class') !== FALSE) {
-            $skeleton = new PHPUnit_Util_Skeleton(
+            require_once 'PHPUnit/Util/Skeleton/Test.php';
+
+            if (isset($arguments['bootstrap'])) {
+                require_once $arguments['bootstrap'];
+            }
+
+            $skeleton = new PHPUnit_Util_Skeleton_Test(
                 $arguments['test'],
                 $arguments['testFile']
             );
@@ -73,6 +79,18 @@ class arbitTextUiCommand extends PHPUnit_TextUI_Command
                 eval(str_replace(array('<?php', '?>'), '', $result['code']));
                 $suite = new PHPUnit_Framework_TestSuite($arguments['test'] . 'Test');
             }
+        }
+
+        if ($arguments['listGroups']) {
+            PHPUnit_TextUI_TestRunner::printVersionString();
+
+            print "Available test group(s):\n";
+
+            foreach ($suite->getGroups() as $group) {
+                print " - $group\n";
+            }
+
+            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
         }
 
         try {
@@ -88,16 +106,18 @@ class arbitTextUiCommand extends PHPUnit_TextUI_Command
             );
         }
 
-        if ($result->wasSuccessful()) {
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
+        if ($exit) {
+            if ($result->wasSuccessful()) {
+                exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
+            }
 
-        else if($result->errorCount() > 0) {
-            exit(PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT);
-        }
+            else if ($result->errorCount() > 0) {
+                exit(PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT);
+            }
 
-        else {
-            exit(PHPUnit_TextUI_TestRunner::FAILURE_EXIT);
+            else {
+                exit(PHPUnit_TextUI_TestRunner::FAILURE_EXIT);
+            }
         }
     }
 }
