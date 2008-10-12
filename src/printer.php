@@ -51,9 +51,12 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
             $this->write(
               "\n\033[1;37;42m" .
               ( $result = sprintf(
-                "Ok (%d test%s)",
+                "OK (%d test%s, %d assertion%s)",
+
                 count($result),
-                (count($result) == 1) ? '' : 's'
+                (count($result) == 1) ? '' : 's',
+                $this->numAssertions,
+                ($this->numAssertions == 1) ? '' : 's'
               ) ) .
               str_repeat( ' ', 80 - strlen( $result ) ) .
               "\033[0m\n"
@@ -65,12 +68,14 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
         {
             $this->write(
               "\n\033[1;37;43mOk, but incomplete or skipped tests!                                            \033[0m\n" . 
-              sprintf(
-                "Tests: %d%s%s.\n",
-                count($result),
-                $this->getCountString($result->notImplementedCount(), 'Incomplete'),
-                $this->getCountString($result->skippedCount(), 'Skipped')
-              )
+                sprintf( 
+                    "Tests: %d, Assertions: %d%s%s.\n",
+
+                    count($result),
+                    $this->numAssertions,
+                    $this->getCountString($result->notImplementedCount(), 'Incomplete'),
+                    $this->getCountString($result->skippedCount(), 'Skipped')
+                )
             );
         }
         else
@@ -78,8 +83,9 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
             $this->write(
               sprintf(
                 "\n\033[1;37;41mFailures                                                                        \033[m\n" .
-                "Tests: %d%s%s%s%s.\n",
+                "Tests: %d, Assertions: %s%s%s%s.\n",
                 count($result),
+                $this->numAssertions,
                 $this->getCountString($result->failureCount(), 'Failures'),
                 $this->getCountString($result->errorCount(), 'Errors'),
                 $this->getCountString($result->notImplementedCount(), 'Incomplete'),
@@ -157,6 +163,10 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
     {
         if (!$this->lastTestFailed) {
             $this->writeProgress( "\033[1;32m✓\033[0m" );
+        }
+
+        if ($test instanceof PHPUnit_Framework_TestCase) {
+            $this->numAssertions += $test->getNumAssertions();
         }
 
         $this->lastEvent = self::EVENT_TEST_END;
