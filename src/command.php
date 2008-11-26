@@ -26,7 +26,7 @@ define('PHPUnit_MAIN_METHOD', 'arbitTextUiCommand::main');
 require 'PHPUnit/TextUI/Command.php';
 
 // Custom printer
-require __DIR__ . '/printer.php';
+require dirname( __FILE__ ) . '/printer.php';
 
 class arbitTextUiCommand extends PHPUnit_TextUI_Command
 {
