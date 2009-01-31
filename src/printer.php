@@ -177,6 +177,23 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
     }
 
     /**
+     * A test started.
+     *
+     * @param  PHPUnit_Framework_Test $test
+     */
+    public function startTest(PHPUnit_Framework_Test $test)
+    {
+        if ( ( $this->lastEvent === self::DATA_PROVIDER_END ) &&
+             ( end( $this->suiteTestsRun ) < end( $this->testSuiteSize ) ) )
+        {
+            echo "\n", str_repeat( '  ', count( $this->testSuiteSize ) - 1 ), '↳ ';
+            $this->column = count( $this->testSuiteSize ) * 2;
+        }
+
+        parent::startTest( $test );
+    }
+
+    /**
      * A test ended.
      *
      * @param  PHPUnit_Framework_Test $test
@@ -262,13 +279,6 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
         array_pop( $this->indentation );
         $run = array_pop( $this->suiteTestsRun );
         $this->suiteTestsRun[count( $this->suiteTestsRun ) - 1] += $run;
-
-        if ( $isDataProvider &&
-             ( end( $this->suiteTestsRun ) < end( $this->testSuiteSize ) ) )
-        {
-            echo "\n", str_repeat( '  ', count( $this->testSuiteSize ) - 1 ), '↳ ';
-            $this->column = count( $this->testSuiteSize ) * 2;
-        }
 
         $this->lastEvent = ( $isDataProvider ? self::DATA_PROVIDER_END : self::EVENT_TESTSUITE_END );
     }
