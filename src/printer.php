@@ -53,6 +53,13 @@ class arbitTextUiResultPrinter extends PHPUnit_TextUI_ResultPrinter
     protected $suiteTestsRun = array( 0 );
 
     /**
+     * Number of tests already run in current suite
+     * 
+     * @var array
+     */
+    protected $testSuiteSize = array();
+
+    /**
      * Event type, when a data provider has been started
      */
     const DATA_PROVIDER_START = 100;

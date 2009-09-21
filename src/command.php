@@ -31,94 +31,22 @@ require dirname( __FILE__ ) . '/printer.php';
 class arbitTextUiCommand extends PHPUnit_TextUI_Command
 {
     /**
-     * Text UI command main method
-     * 
-     * Copied from PHPUnit_TextUI_Command, used with a different test runner,
-     * to use our own output formatting.
-     *
-     * We should try to keep this method with the original main() method in
-     * sync.
-     *
-     * @return void
+     * @param boolean $exit
      */
-    public static function main($exit = true)
+    public static function main($exit = TRUE)
     {
-        $arguments = self::handleArguments();
-        $runner    = new PHPUnit_TextUI_TestRunner;
+        $command = new static();
+        $command->run($_SERVER['argv'], $exit);
+    }
 
-        // Changed for arbit
-        $runner->setPrinter( new arbitTextUiResultPrinter() );
-        // End of change
-
-        if (is_object($arguments['test']) && $arguments['test'] instanceof PHPUnit_Framework_Test) {
-            $suite = $arguments['test'];
-        } else {
-            $suite = $runner->getTest(
-              $arguments['test'],
-              $arguments['testFile'],
-              $arguments['syntaxCheck']
-            );
-        }
-
-        if ($suite->testAt(0) instanceof PHPUnit_Framework_Warning &&
-            strpos($suite->testAt(0)->getMessage(), 'No tests found in class') !== FALSE) {
-            require_once 'PHPUnit/Util/Skeleton/Test.php';
-
-            if (isset($arguments['bootstrap'])) {
-                require_once $arguments['bootstrap'];
-            }
-
-            $skeleton = new PHPUnit_Util_Skeleton_Test(
-                $arguments['test'],
-                $arguments['testFile']
-            );
-
-            $result = $skeleton->generate(TRUE);
-
-            if (!$result['incomplete']) {
-                eval(str_replace(array('<?php', '?>'), '', $result['code']));
-                $suite = new PHPUnit_Framework_TestSuite($arguments['test'] . 'Test');
-            }
-        }
-
-        if ($arguments['listGroups']) {
-            PHPUnit_TextUI_TestRunner::printVersionString();
-
-            print "Available test group(s):\n";
-
-            foreach ($suite->getGroups() as $group) {
-                print " - $group\n";
-            }
-
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
-
-        try {
-            $result = $runner->doRun(
-              $suite,
-              $arguments
-            );
-        }
-
-        catch (Exception $e) {
-            throw new RuntimeException(
-              'Could not create and run test suite: ' . $e->getMessage()
-            );
-        }
-
-        if ($exit) {
-            if ($result->wasSuccessful()) {
-                exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-            }
-
-            else if ($result->errorCount() > 0) {
-                exit(PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT);
-            }
-
-            else {
-                exit(PHPUnit_TextUI_TestRunner::FAILURE_EXIT);
-            }
-        }
+    /**
+     * @param array $argv
+     * @param boolean $exit
+     */
+    public function run( array $argv, $exit = true )
+    {
+        $this->arguments['printer'] = new arbitTextUiResultPrinter();
+        return parent::run( $argv, $exit );
     }
 }
 
